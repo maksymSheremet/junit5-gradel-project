@@ -8,15 +8,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
 
+    private static final User IVAN = User.of(1, "Ivan", "123");
+    private static final User PETR = User.of(2, "Petr", "111");
     private UserService userService;
 
-//    @BeforeAll
+    //    @BeforeAll
 //    static void beforeAll() {
 //        System.out.println("before all\n");
 //    }
@@ -44,12 +48,37 @@ class UserServiceTest {
     void usersSizeIfUserAdded() {
         System.out.println("Test2: " + this);
 
-        userService.addUser(new User());
-        userService.addUser(new User());
+        userService.addUser(IVAN);
+        userService.addUser(PETR);
 
         var users = userService.getAllUsers();
 
-        assertEquals(2,  users.size());
+        assertEquals(2, users.size());
+    }
+
+    @Test
+    void loginSuccessIfUserExists() {
+        userService.addUser(IVAN);
+        Optional<User> maybeUser = userService.login(IVAN.getName(), IVAN.getPassword());
+
+        assertTrue(maybeUser.isPresent());
+        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
+    }
+
+    @Test
+    void loginFailIfPasswordIsNotCorrect() {
+        userService.addUser(IVAN);
+        Optional<User> maybeUser = userService.login(IVAN.getName(), "dummy");
+
+        assertTrue(maybeUser.isEmpty());
+    }
+
+    @Test
+    void loginFailIfUserDoesNotExist() {
+        userService.addUser(IVAN);
+        Optional<User> maybeUser = userService.login("dummy", IVAN.getPassword());
+
+        assertTrue(maybeUser.isEmpty());
     }
 
     @AfterEach
@@ -57,12 +86,12 @@ class UserServiceTest {
         System.out.println("After each: " + this + "\n");
     }
 
-//    @AfterAll
+    //    @AfterAll
 //    static void afterAll() {
 //        System.out.println("after all");
 //    }
     @AfterAll
     void afterAll() {
-        System.out.println("after all: " +  this + "\n");
+        System.out.println("after all: " + this + "\n");
     }
 }
