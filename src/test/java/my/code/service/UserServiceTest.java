@@ -1,6 +1,9 @@
 package my.code.service;
 
 import my.code.entity.User;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsMapContaining;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -8,8 +11,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,6 +47,7 @@ class UserServiceTest {
 
         var users = userService.getAllUsers();
 
+//        MatcherAssert.assertThat(users, IsEmptyCollection.empty());
         assertTrue(users.isEmpty());
     }
 
@@ -53,6 +60,8 @@ class UserServiceTest {
 
         var users = userService.getAllUsers();
 
+        assertThat(users).hasSize(2);
+
         assertEquals(2, users.size());
     }
 
@@ -62,7 +71,28 @@ class UserServiceTest {
         Optional<User> maybeUser = userService.login(IVAN.getName(), IVAN.getPassword());
 
         assertTrue(maybeUser.isPresent());
+        assertThat(maybeUser).isPresent();
+
         maybeUser.ifPresent(user -> assertEquals(IVAN, user));
+        maybeUser.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
+    }
+
+    @Test
+    void usersConvertedToMapById() {
+        userService.addUser(IVAN, PETR);
+
+        Map<Integer, User> users = userService.getAllConvertedById();
+
+//        MatcherAssert.assertThat(users, IsMapContaining.hasKey(IVAN.getId()));
+
+        assertAll(
+                () -> assertThat(users).containsKeys(IVAN.getId(), PETR.getId()),
+                () -> assertThat(users).containsValues(IVAN, PETR)
+        );
+
+//        assertThat(users).containsKeys(IVAN.getId(), PETR.getId());
+//        assertThat(users).containsValues(IVAN, PETR);
+
     }
 
     @Test
