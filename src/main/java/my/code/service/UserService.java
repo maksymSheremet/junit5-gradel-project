@@ -25,6 +25,9 @@ public class UserService {
     }
 
     public Optional<User> login(String name, String password) {
+        if (users.isEmpty() || password.isEmpty()) {
+            throw new IllegalArgumentException("Username or password is empty");
+        }
         return users.stream()
                 .filter(user -> user.getName().equals(name) && user.getPassword().equals(password))
                 .findFirst();

@@ -1,9 +1,6 @@
 package my.code.service;
 
 import my.code.entity.User;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsMapContaining;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,6 +14,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -93,6 +91,24 @@ class UserServiceTest {
 //        assertThat(users).containsKeys(IVAN.getId(), PETR.getId());
 //        assertThat(users).containsValues(IVAN, PETR);
 
+    }
+
+    @Test
+    void throwExceptionIfUsernameOrPasswordIsNull() {
+        assertAll(
+                () -> {
+                    var exception = assertThrows(IllegalArgumentException.class, () -> userService.login(null, "123"));
+                    assertThat(exception.getMessage()).isEqualTo("Username or password is empty");
+                },
+                () -> assertThrows(IllegalArgumentException.class, () -> userService.login("dummy", null))
+        );
+
+//        try {
+//            userService.login(null, "123");
+//            fail("login should throw exception");
+//        } catch (IllegalArgumentException e) {
+//            assertTrue(true);
+//        }
     }
 
     @Test
