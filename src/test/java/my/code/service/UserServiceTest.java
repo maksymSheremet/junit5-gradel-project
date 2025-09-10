@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("fast")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServiceTest {
 
@@ -64,18 +66,6 @@ class UserServiceTest {
     }
 
     @Test
-    void loginSuccessIfUserExists() {
-        userService.addUser(IVAN);
-        Optional<User> maybeUser = userService.login(IVAN.getName(), IVAN.getPassword());
-
-        assertTrue(maybeUser.isPresent());
-        assertThat(maybeUser).isPresent();
-
-        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
-        maybeUser.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
-    }
-
-    @Test
     void usersConvertedToMapById() {
         userService.addUser(IVAN, PETR);
 
@@ -94,6 +84,20 @@ class UserServiceTest {
     }
 
     @Test
+    @Tag("login")
+    void loginSuccessIfUserExists() {
+        userService.addUser(IVAN);
+        Optional<User> maybeUser = userService.login(IVAN.getName(), IVAN.getPassword());
+
+        assertTrue(maybeUser.isPresent());
+        assertThat(maybeUser).isPresent();
+
+        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
+        maybeUser.ifPresent(user -> assertThat(user).isEqualTo(IVAN));
+    }
+
+    @Test
+    @Tag("login")
     void throwExceptionIfUsernameOrPasswordIsNull() {
         assertAll(
                 () -> {
@@ -112,6 +116,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Tag("login")
     void loginFailIfPasswordIsNotCorrect() {
         userService.addUser(IVAN);
         Optional<User> maybeUser = userService.login(IVAN.getName(), "dummy");
@@ -120,6 +125,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Tag("login")
     void loginFailIfUserDoesNotExist() {
         userService.addUser(IVAN);
         Optional<User> maybeUser = userService.login("dummy", IVAN.getPassword());
