@@ -1,6 +1,7 @@
 package my.code.service;
 
 import my.code.entity.User;
+import my.code.paramresolver.UserServiceParamResolver;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Tag("fast")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@ExtendWith({
+        UserServiceParamResolver.class
+})
 class UserServiceTest {
 
     private static final User IVAN = User.of(1, "Ivan", "123");
@@ -42,9 +47,9 @@ class UserServiceTest {
     }
 
     @BeforeEach
-    void setUp() {
+    void setUp(UserService userService) {
         System.out.println("Before each: " + this);
-        userService = new UserService();
+        this.userService = userService;
     }
 
     @Test
