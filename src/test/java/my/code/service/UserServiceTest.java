@@ -26,7 +26,7 @@ class UserServiceTest {
     private static final User PETR = User.of(2, "Petr", "111");
     private UserService userService;
 
-//    @BeforeAll
+    //    @BeforeAll
 //    static void beforeAll() {
 //        System.out.println("before all\n");
 //    }
@@ -80,6 +80,7 @@ class UserServiceTest {
 
 //        assertThat(users).containsKeys(IVAN.getId(), PETR.getId());
 //        assertThat(users).containsValues(IVAN, PETR);
+
     }
 
     @Test
@@ -137,7 +138,7 @@ class UserServiceTest {
         System.out.println("After each: " + this + "\n");
     }
 
-//    @AfterAll
+    //    @AfterAll
 //    static void afterAll() {
 //        System.out.println("after all");
 //    }
