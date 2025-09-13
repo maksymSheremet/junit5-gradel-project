@@ -15,9 +15,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -161,5 +167,44 @@ class UserServiceTest {
 
             assertTrue(maybeUser.isEmpty());
         }
+
+        @ParameterizedTest(name = "{arguments} test")
+//        @ArgumentsSource()
+//        @NullSource
+//        @EmptySource
+//        @ValueSource(strings = {
+//                "Ivan", "Petr"
+//        })
+//        @NullAndEmptySource
+//        @EnumSource
+        @MethodSource("my.code.service.UserServiceTest#getArgumentsForLoginTest")
+//        @CsvFileSource(resources = "/login-test-data.csv", delimiter = ',', numLinesToSkip = 1)
+//        @CsvSource({
+//                "Ivan", "123",
+//                "Petr", "111"
+//        })
+        @DisplayName("login display parametrized test")
+        void loginParametrizedTest(String username, String password, Optional<User> user) {
+            userService.addUser(IVAN, PETR);
+
+            var maybeUser = userService.login(username, password);
+
+            assertThat(maybeUser).isEqualTo(user);
+        }
+
+
+    }
+
+    static Stream<Arguments> getArgumentsForLoginTest() {
+        return Stream.of(Arguments.of("Ivan", "123", Optional.of(IVAN)),
+                Arguments.of("Petr", "111", Optional.of(PETR)),
+                Arguments.of("Petr", "dummy", Optional.empty()),
+                Arguments.of("dummy", "111", Optional.empty()));
+
+//        return Stream.of("Ivan", "123", Optional.of(IVAN),
+//                        "Petr", "111", Optional.of(PETR),
+//                        "Petr", "dummy", Optional.empty(),
+//                        "dummy", "111", Optional.empty())
+//                .map(Arguments::of);
     }
 }
