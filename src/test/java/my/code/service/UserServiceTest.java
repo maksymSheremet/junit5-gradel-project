@@ -1,6 +1,11 @@
 package my.code.service;
 
+import my.code.BaseTest;
 import my.code.entity.User;
+import my.code.extension.ConditionalExtension;
+import my.code.extension.GlobalExtension;
+import my.code.extension.PostProcessingExtension;
+import my.code.extension.ThrowableExtension;
 import my.code.paramresolver.UserServiceParamResolver;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -16,25 +21,20 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvFileSource;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,9 +42,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith({
-        UserServiceParamResolver.class
+        UserServiceParamResolver.class,
+        PostProcessingExtension.class,
+        ConditionalExtension.class,
+        ThrowableExtension.class
+//        GlobalExtension.class
 })
-class UserServiceTest {
+class UserServiceTest extends BaseTest {
 
     private static final User IVAN = User.of(1, "Ivan", "123");
     private static final User PETR = User.of(2, "Petr", "111");
@@ -160,7 +164,7 @@ class UserServiceTest {
 //        }
         }
 
-//        @Test
+        //        @Test
         @RepeatedTest(value = 5, name = RepeatedTest.LONG_DISPLAY_NAME)
         void loginFailIfPasswordIsNotCorrect(RepetitionInfo repetitionInfo) {
             userService.addUser(IVAN);
@@ -179,8 +183,8 @@ class UserServiceTest {
 //                return userService.login(IVAN.getName(), IVAN.getPassword());
 //            });
 
-           assertTimeoutPreemptively(Duration.ofMillis(200L), () -> {
-               System.out.println(Thread.currentThread().getName());
+            assertTimeoutPreemptively(Duration.ofMillis(200L), () -> {
+                System.out.println(Thread.currentThread().getName());
                 Thread.sleep(100L);
                 return userService.login(IVAN.getName(), IVAN.getPassword());
             });
