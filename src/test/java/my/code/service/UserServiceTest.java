@@ -10,10 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -21,14 +24,18 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("fast")
@@ -123,6 +130,7 @@ class UserServiceTest {
     class LoginTest {
 
         @Test
+        @DisplayName("flacy, need to see")
         void loginSuccessIfUserExists() {
             userService.addUser(IVAN);
             Optional<User> maybeUser = userService.login(IVAN.getName(), IVAN.getPassword());
@@ -152,12 +160,31 @@ class UserServiceTest {
 //        }
         }
 
-        @Test
-        void loginFailIfPasswordIsNotCorrect() {
+//        @Test
+        @RepeatedTest(value = 5, name = RepeatedTest.LONG_DISPLAY_NAME)
+        void loginFailIfPasswordIsNotCorrect(RepetitionInfo repetitionInfo) {
             userService.addUser(IVAN);
             Optional<User> maybeUser = userService.login(IVAN.getName(), "dummy");
 
             assertTrue(maybeUser.isEmpty());
+        }
+
+        @Test
+//        @Timeout(value = 200, unit = TimeUnit.MILLISECONDS)
+        void checkLoginFunctionalityPerformance() {
+            userService.addUser(IVAN);
+            System.out.println(Thread.currentThread().getName());
+//            var maybeUser = assertTimeout(Duration.ofMillis(200L), () -> {
+//                Thread.sleep(2000L);
+//                return userService.login(IVAN.getName(), IVAN.getPassword());
+//            });
+
+           assertTimeoutPreemptively(Duration.ofMillis(200L), () -> {
+               System.out.println(Thread.currentThread().getName());
+                Thread.sleep(100L);
+                return userService.login(IVAN.getName(), IVAN.getPassword());
+            });
+
         }
 
         @Test
