@@ -1,6 +1,7 @@
 package my.code.service;
 
 import my.code.BaseTest;
+import my.code.dao.UserDao;
 import my.code.entity.User;
 import my.code.extension.ConditionalExtension;
 import my.code.extension.GlobalExtension;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
 import java.time.Duration;
 import java.util.Map;
@@ -37,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 @Tag("fast")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -44,8 +47,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith({
         UserServiceParamResolver.class,
         PostProcessingExtension.class,
-        ConditionalExtension.class,
-        ThrowableExtension.class
+        ConditionalExtension.class
+//        ThrowableExtension.class
 //        GlobalExtension.class
 })
 class UserServiceTest extends BaseTest {
@@ -53,6 +56,8 @@ class UserServiceTest extends BaseTest {
     private static final User IVAN = User.of(1, "Ivan", "123");
     private static final User PETR = User.of(2, "Petr", "111");
     private UserService userService;
+
+    private UserDao userDao;
 
     //    @BeforeAll
 //    static void beforeAll() {
@@ -64,9 +69,10 @@ class UserServiceTest extends BaseTest {
     }
 
     @BeforeEach
-    void setUp(UserService userService) {
+    void setUp() {
         System.out.println("Before each: " + this);
-        this.userService = userService;
+        this.userDao = mock(UserDao.class);
+        this.userService = new UserService(userDao);
     }
 
     @Test
@@ -112,6 +118,23 @@ class UserServiceTest extends BaseTest {
 //        assertThat(users).containsKeys(IVAN.getId(), PETR.getId());
 //        assertThat(users).containsValues(IVAN, PETR);
 
+    }
+
+    @Test
+    void shouldDeleteExistedUser() {
+        userService.addUser(IVAN, PETR);
+
+//        doReturn(true).when(userDao).delete(IVAN.getId());
+//        doReturn(true).when(userDao).delete(anyInt());
+        when(userDao.delete(IVAN.getId()))
+                .thenReturn(true)
+                .thenReturn(false);
+
+        var deleteResult = userService.deleteUser(IVAN.getId());
+        System.out.println(userService.deleteUser(IVAN.getId()));
+        System.out.println(userService.deleteUser(IVAN.getId()));
+
+        assertThat(deleteResult).isTrue();
     }
 
     @AfterEach
