@@ -1,5 +1,6 @@
 package my.code.service;
 
+import my.code.dao.UserDao;
 import my.code.entity.User;
 
 import java.util.ArrayList;
@@ -15,6 +16,11 @@ import static java.util.stream.Collectors.toMap;
 public class UserService {
 
     private final List<User> users = new ArrayList<User>();
+    private final UserDao userDao;
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     public List<User> getAllUsers() {
         return users.isEmpty() ? Collections.emptyList() : users;
@@ -36,5 +42,9 @@ public class UserService {
     public Map<Integer, User> getAllConvertedById() {
         return users.stream()
                 .collect(toMap(User::getId, identity()));
+    }
+
+    public boolean deleteUser(Integer userId) {
+        return userDao.delete(userId);
     }
 }

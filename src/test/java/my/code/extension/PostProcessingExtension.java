@@ -1,6 +1,7 @@
 package my.code.extension;
 
 import lombok.Getter;
+import my.code.dao.UserDao;
 import my.code.service.UserService;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
@@ -15,7 +16,7 @@ public class PostProcessingExtension implements TestInstancePostProcessor {
         var declaredFields = testInstance.getClass().getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Getter.class)) {
-                field.set(testInstance, new UserService());
+                field.set(testInstance, new UserService(new UserDao()));
             }
         }
     }

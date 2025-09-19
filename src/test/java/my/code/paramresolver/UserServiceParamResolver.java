@@ -1,5 +1,6 @@
 package my.code.paramresolver;
 
+import my.code.dao.UserDao;
 import my.code.service.UserService;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -17,7 +18,7 @@ public class UserServiceParamResolver implements ParameterResolver {
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
 //        extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).get(UserService.class.getName());
         var store = extensionContext.getStore(ExtensionContext.Namespace.create(UserService.class));
-        return store.getOrComputeIfAbsent(UserService.class, it -> new UserService());
+        return store.getOrComputeIfAbsent(UserService.class, it -> new UserService(new UserDao()));
 //        return new UserService();
     }
 }
